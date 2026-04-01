@@ -1,0 +1,40 @@
+@host = http://localhost:5294
+
+### Health
+GET {{host}}/health
+Accept: application/json
+
+### Importar personajes (ids externos)
+POST {{host}}/api/personajes/importar
+Content-Type: application/json
+
+{
+  "externalIds": [1, 2]
+}
+
+### Listar personajes (paginación y filtros)
+GET {{host}}/api/personajes?page=1&pageSize=10&nombre=Rick
+Accept: application/json
+
+### Crear solicitud
+POST {{host}}/api/solicitudes
+Content-Type: application/json
+
+{
+  "personajeId": 1,
+  "solicitante": "Equipo QA",
+  "evento": "Validación de origen",
+  "fechaEvento": "2026-03-30T12:00:00Z"
+}
+
+### Cambiar estado solicitud (ajuste el id)
+PATCH {{host}}/api/solicitudes/1/estado
+Content-Type: application/json
+
+{
+  "estado": "EnProceso"
+}
+
+### Resumen solicitudes
+GET {{host}}/api/reportes/solicitudes-resumen
+Accept: application/json

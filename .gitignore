@@ -403,3 +403,13 @@ ASALocalRun/
 
 # Local History for Visual Studio
 .localhistory/
+
+# SQLite desarrollo local
+*.db
+*.db-shm
+*.db-wal
+
+# Secretos: Compose usa .env para ${VAR}; no commitear
+.env
+.env.*
+!.env.example

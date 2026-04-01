@@ -1,0 +1,43 @@
+services:
+  # Azure SQL Edge: compatible con T-SQL y funciona en ARM64 (Apple Silicon). SQL Server 2022 oficial es amd64 y suele fallar en Mac M1/M2.
+  sql:
+    image: mcr.microsoft.com/azure-sql-edge:latest
+    environment:
+      ACCEPT_EULA: "Y"
+      MSSQL_SA_PASSWORD: ${MSSQL_SA_PASSWORD:-RickMorty_Dev_2024!}
+    ports:
+      - "14333:1433"
+    volumes:
+      - sqldata:/var/opt/mssql
+    cap_add:
+      - SYS_PTRACE
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          'timeout 5 bash -c "cat < /dev/null > /dev/tcp/127.0.0.1/1433" || exit 1',
+        ]
+      interval: 5s
+      timeout: 5s
+      retries: 30
+      start_period: 35s
+
+  api:
+    build: .
+    ports:
+      - "8080:8080"
+    # Sustitución desde .env (Compose lo lee en la raíz): simula valores inyectados por App Service / pipeline sin commitear secretos.
+    environment:
+      ASPNETCORE_ENVIRONMENT: ${ASPNETCORE_ENVIRONMENT:-Development}
+      Database__Provider: ${DATABASE__PROVIDER:-SqlServer}
+      ConnectionStrings__DefaultConnection: ${CONNECTIONSTRINGS__DEFAULTCONNECTION:-Server=sql,1433;Database=RickAndMortyDb;User Id=sa;Password=RickMorty_Dev_2024!;TrustServerCertificate=True;Encrypt=False}
+      RickAndMortyApi__BaseUrl: ${RICKANDMORTYAPI__BASEURL:-https://rickandmortyapi.com/api/}
+      # Opcional — Key Vault real (dotnet lee KEYVAULT_VAULTURI): requiere credencial Azure (az login, managed identity, etc.).
+      KEYVAULT_VAULTURI: ${KEYVAULT_VAULTURI:-}
+    depends_on:
+      sql:
+        condition: service_healthy
+    restart: unless-stopped
+
+volumes:
+  sqldata:

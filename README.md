@@ -152,3 +152,172 @@ docker-compose.yml
 ```
 
 Solución principal: **RickAndMorty.sln**.
+
+
+## Ejercicio de Migración — Web Forms a .NET 8
+
+Este documento muestra la reescritura del sistema legado (ASP.NET Web Forms) hacia una API moderna en .NET 8, aplicando buenas prácticas como uso de EF Core, validaciones, separación por capas y manejo de errores.
+
+---
+
+## Entidad
+
+    public class Solicitud
+    {
+        public int Id { get; set; }
+        public int PersonajeId { get; set; }
+        public string Solicitante { get; set; } = null!;
+        public string Evento { get; set; } = null!;
+        public DateTime FechaEvento { get; set; }
+        public int Estado { get; set; }
+        public DateTime FechaCreacion { get; set; }
+    }
+
+---
+
+## DTO
+
+    using System.ComponentModel.DataAnnotations;
+
+    public class CrearSolicitudDto
+    {
+        [Required]
+        public int PersonajeId { get; set; }
+
+        [Required(ErrorMessage = "El solicitante es obligatorio")]
+        public string Solicitante { get; set; } = null!;
+
+        [Required(ErrorMessage = "El evento es obligatorio")]
+        public string Evento { get; set; } = null!;
+
+        [Required]
+        public DateTime FechaEvento { get; set; }
+    }
+
+---
+
+## DbContext
+
+    using Microsoft.EntityFrameworkCore;
+
+    public class AppDbContext : DbContext
+    {
+        public DbSet<Solicitud> Solicitudes => Set<Solicitud>();
+
+        public AppDbContext(DbContextOptions<AppDbContext> options)
+            : base(options) { }
+    }
+
+---
+
+## Servicio
+
+    public interface ISolicitudService
+    {
+        Task<Solicitud> CrearAsync(CrearSolicitudDto dto);
+    }
+
+    public class SolicitudService : ISolicitudService
+    {
+        private readonly AppDbContext _context;
+        private readonly ILogger<SolicitudService> _logger;
+
+        public SolicitudService(AppDbContext context, ILogger<SolicitudService> logger)
+        {
+            _context = context;
+            _logger = logger;
+        }
+
+        public async Task<Solicitud> CrearAsync(CrearSolicitudDto dto)
+        {
+            var solicitud = new Solicitud
+            {
+                PersonajeId = dto.PersonajeId,
+                Solicitante = dto.Solicitante,
+                Evento = dto.Evento,
+                FechaEvento = dto.FechaEvento,
+                Estado = 0,
+                FechaCreacion = DateTime.UtcNow
+            };
+
+            _context.Solicitudes.Add(solicitud);
+            await _context.SaveChangesAsync();
+
+            _logger.LogInformation("Solicitud creada con ID {Id}", solicitud.Id);
+
+            return solicitud;
+        }
+    }
+
+---
+
+## Controller
+
+    using Microsoft.AspNetCore.Mvc;
+
+    [ApiController]
+    [Route("api/[controller]")]
+    public class SolicitudesController : ControllerBase
+    {
+        private readonly ISolicitudService _service;
+        private readonly ILogger<SolicitudesController> _logger;
+
+        public SolicitudesController(
+            ISolicitudService service,
+            ILogger<SolicitudesController> logger)
+        {
+            _service = service;
+            _logger = logger;
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> Crear([FromBody] CrearSolicitudDto dto)
+        {
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            try
+            {
+                var solicitud = await _service.CrearAsync(dto);
+
+                return CreatedAtAction(
+                    nameof(ObtenerPorId),
+                    new { id = solicitud.Id },
+                    solicitud);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error al crear solicitud");
+                return StatusCode(500, "Error interno del servidor");
+            }
+        }
+
+        [HttpGet("{id}")]
+        public IActionResult ObtenerPorId(int id)
+        {
+            return Ok();
+        }
+    }
+
+---
+
+## Configuración
+
+    {
+      "ConnectionStrings": {
+        "DefaultConnection": "Server=YOUR_SERVER;Database=IntergalaxyDB;Trusted_Connection=True;"
+      }
+    }
+
+    builder.Services.AddDbContext<AppDbContext>(options =>
+        options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+
+---
+
+## Resultado
+
+- API RESTful (stateless)
+- Uso de Entity Framework Core
+- Validaciones con DataAnnotations
+- Manejo de errores y logging
+- Separación de responsabilidades

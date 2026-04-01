@@ -321,3 +321,49 @@ Este documento muestra la reescritura del sistema legado (ASP.NET Web Forms) hac
 - Validaciones con DataAnnotations
 - Manejo de errores y logging
 - Separación de responsabilidades
+
+
+## Preguntas de Liderazgo Técnico
+
+### ¿Cómo planificarías la migración completa del sistema legado en etapas graduales?
+
+Dividiría la migración por módulos funcionales (por ejemplo: solicitudes, personajes, usuarios), priorizando los de mayor valor o menor complejidad.  
+Aplicaría el patrón **Strangler Fig**, reemplazando gradualmente funcionalidades del sistema legado con nuevos endpoints en .NET 8.  
+Cada etapa incluiría:
+
+- Análisis del módulo
+- Desarrollo en la nueva arquitectura
+- Pruebas (unitarias e integración)
+- Despliegue progresivo
+
+Esto permite reducir riesgos y evitar interrupciones en el negocio.
+
+---
+
+### ¿Qué estrategia usarías si el sistema legado debe operar en paralelo durante la transición?
+
+Implementaría una estrategia de **coexistencia controlada**, donde ambos sistemas convivan temporalmente:
+
+- Uso de un **API Gateway o proxy** para redirigir tráfico al sistema nuevo o legado
+- Sincronización de datos si ambos sistemas escriben en la misma base
+- Feature flags para activar/desactivar funcionalidades migradas
+- Monitoreo constante para validar estabilidad
+
+Esto permite validar el nuevo sistema sin afectar a los usuarios finales.
+
+---
+
+### ¿Cómo organizarías a un equipo de 3 desarrolladores para este módulo?
+
+Definiría roles claros pero colaborativos:
+
+- **Dev 1 (Backend Lead):** arquitectura, decisiones técnicas, revisión de código
+- **Dev 2:** implementación de endpoints y lógica de negocio
+- **Dev 3:** validaciones, testing y soporte de integración
+
+Buenas prácticas:
+
+- Uso de **Git Flow** o trunk-based development
+- Pull Requests obligatorios con al menos 1 aprobación
+- Code reviews enfocados en calidad, seguridad y buenas prácticas
+- Integración continua (CI/CD)

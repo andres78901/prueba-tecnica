@@ -1,0 +1,77 @@
+/* Tailwind entry + small design system */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+	:root{
+		--accent: #2563eb;
+		--muted: #6b7280;
+    --bg: #f8fafc;
+    --surface: #ffffff;
+    --danger: #ef4444;
+    --success: #10b981;
+	}
+	body { background-color: var(--bg); color: #111827; font-family: Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial; }
+}
+
+/* simple component styles without using @apply to avoid build-time apply issues */
+.card{ background-color:#ffffff; border-radius:0.5rem; box-shadow:0 1px 2px rgba(0,0,0,0.04); padding:1.5rem }
+.form-label{ display:block; font-size:0.875rem; font-weight:600; color:#374151; margin-bottom:0.25rem }
+.form-hint{ display:block; font-size:0.8125rem; color: var(--muted); margin-top:0.25rem }
+.form-error{ display:block; font-size:0.8125rem; color: var(--danger); margin-top:0.35rem }
+.form-input{ display:block; width:100%; border-radius:0.375rem; border:1px solid #e5e7eb; padding:0.5rem; box-shadow:0 1px 1px rgba(0,0,0,0.02) }
+.form-input:focus{ outline:none; border-color:#6366f1; box-shadow: 0 0 0 4px rgba(99,102,241,0.08) }
+.form-input.ng-invalid.ng-touched{ border-color: var(--danger) }
+.form-input.ng-invalid.ng-touched:focus{ box-shadow: 0 0 0 4px rgba(239,68,68,0.10) }
+.btn-primary{ display:inline-flex; align-items:center; padding:0.5rem 1rem; background-color:#4f46e5; color:#fff; border-radius:0.375rem }
+.btn-primary:hover{ background-color:#4338ca }
+.btn-secondary{ display:inline-flex; align-items:center; padding:0.45rem 0.75rem; background:#fff; border:1px solid #e5e7eb; color:#374151; border-radius:0.375rem }
+.btn-primary:disabled,.btn-secondary:disabled{ opacity:0.6; cursor:not-allowed }
+.form-row{ display:grid; grid-template-columns:repeat(1,1fr); gap:0.75rem }
+
+/* App shell (was in app.css; styles.css is the only global stylesheet loaded) */
+.app-shell{max-width:1100px;margin:24px auto;padding:20px;background:var(--surface);border-radius:8px;box-shadow:0 2px 8px rgba(0,0,0,0.06)}
+.header{display:flex;gap:12px;align-items:center;margin-bottom:16px;flex-wrap:wrap}
+.nav a{margin-right:12px;color:var(--accent);text-decoration:none}
+.nav a:hover{ text-decoration: underline }
+.nav a.active{ font-weight: 700; text-decoration: underline }
+
+/* Data grid */
+.dg{ background: var(--surface); border: 1px solid #eef2f7; border-radius: 10px; overflow: hidden }
+.dg-scroll{ overflow:auto }
+.dg-table{ width:100%; border-collapse: separate; border-spacing: 0 }
+.dg-table thead th{ position: sticky; top: 0; background: #f8fafc; color:#0f172a; font-size: 13px; text-align:left; padding: 10px 12px; border-bottom:1px solid #e5e7eb; white-space:nowrap }
+.dg-table tbody td{ padding: 10px 12px; border-bottom:1px solid #f1f5f9; font-size: 14px; color:#111827; vertical-align: middle; white-space:nowrap }
+.dg-row:hover td{ background: #fbfdff }
+.dg-clickable:hover td{ background: #f5faff }
+.dg-clickable{ cursor: pointer }
+.dg-clickable:focus{ outline: 2px solid rgba(37, 99, 235, 0.35); outline-offset: -2px }
+.dg-sortable{ cursor:pointer; user-select:none }
+.dg-th{ display:flex; align-items:center; justify-content:space-between; gap:10px }
+.dg-sort{ color:#64748b; font-size: 12px }
+.dg-muted{ color:#64748b; font-size: 13px; padding: 14px 12px }
+.dg-align-center{ text-align:center }
+.dg-align-right{ text-align:right }
+
+/* Toasts */
+.toast-stack{ position: fixed; top: 16px; right: 16px; display:flex; flex-direction:column; gap:10px; z-index: 9999; width: min(420px, calc(100vw - 32px)) }
+.toast{ background:#0b1220; color:#e5e7eb; border:1px solid rgba(255,255,255,0.10); border-radius:12px; padding:12px 12px 10px; box-shadow:0 10px 30px rgba(0,0,0,0.18) }
+.toast-success{ border-color: rgba(16,185,129,0.35) }
+.toast-error{ border-color: rgba(239,68,68,0.45) }
+.toast-head{ display:flex; align-items:center; justify-content:space-between; gap:10px; margin-bottom:6px }
+.toast-title{ font-size: 12px; letter-spacing:0.04em; text-transform: uppercase; color:#cbd5e1 }
+.toast-msg{ font-size: 14px; line-height: 1.25 }
+.toast-details{ margin:8px 0 0; padding-left: 18px; color:#cbd5e1; font-size: 13px }
+.toast-x{ background:transparent; border:0; color:#cbd5e1; font-size:18px; line-height:1; cursor:pointer; padding:0 4px }
+.toast-x:hover{ color:#ffffff }
+
+/* Pager */
+.pager{ display:flex; align-items:center; gap:10px; justify-content:flex-end; margin-top:12px; flex-wrap:wrap }
+.pager-pages{ display:flex; gap:6px; align-items:center }
+.pager-page{ background:#fff; border:1px solid #e5e7eb; border-radius:8px; padding:6px 10px; cursor:pointer; font-size:13px; color:#111827 }
+.pager-page:hover{ background:#f8fafc }
+.pager-page:disabled{ opacity:0.75; cursor:default }
+.pager-page-active{ border-color: rgba(37,99,235,0.45); background: rgba(37,99,235,0.08) }
+.pager-meta{ color:#64748b; font-size:13px; min-width: 120px; text-align:center }
+
